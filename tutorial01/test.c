@@ -22,6 +22,15 @@ static int test_pass = 0;
 
 #define EXPECT_EQ_INT(expect, actual) EXPECT_EQ_BASE((expect) == (actual), expect, actual, "%d")
 
+#define TEST_ERROR(error, json)                      \
+    do                                               \
+    {                                                \
+        lept_value v;                                \
+        v.type = LEPT_FALSE;                         \
+        EXPECT_EQ_INT(error, lept_parse(&v, json));  \
+        EXPECT_EQ_INT(LEPT_NULL, lept_get_type(&v)); \
+    } while (0)
+
 // 因为 static 函数的意思是指该函数只作用于编译单元中，那么没有被调用时，编译器是能发现并警告的。
 static void test_parse_null()
 {
@@ -49,15 +58,8 @@ static void test_parse_false()
 
 static void test_parse_expect_value()
 {
-    lept_value v;
-
-    v.type = LEPT_FALSE;
-    EXPECT_EQ_INT(LEPT_PARSE_EXPECT_VALUE, lept_parse(&v, ""));
-    EXPECT_EQ_INT(LEPT_NULL, lept_get_type(&v));
-
-    v.type = LEPT_FALSE;
-    EXPECT_EQ_INT(LEPT_PARSE_EXPECT_VALUE, lept_parse(&v, " "));
-    EXPECT_EQ_INT(LEPT_NULL, lept_get_type(&v));
+    TEST_ERROR(LEPT_PARSE_EXPECT_VALUE, "");
+    TEST_ERROR(LEPT_PARSE_EXPECT_VALUE, " ");
 }
 
 static void test_parse_invalid_value()
