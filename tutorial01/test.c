@@ -22,6 +22,7 @@ static int test_pass = 0;
 
 #define EXPECT_EQ_INT(expect, actual) EXPECT_EQ_BASE((expect) == (actual), expect, actual, "%d")
 
+// 因为 static 函数的意思是指该函数只作用于编译单元中，那么没有被调用时，编译器是能发现并警告的。
 static void test_parse_null()
 {
     lept_value v;
