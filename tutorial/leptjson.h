@@ -1,7 +1,7 @@
 #ifndef LEPTJSON_H__
 #define LEPTJSON_H__
 
-#include <stdlib.h> /* NULL */
+#include <stddef.h> /* size_t */
 
 typedef enum
 {
@@ -16,33 +16,17 @@ typedef enum
 
 typedef struct
 {
-    size_t len;
     union
     {
         struct
         {
             char *s;
             size_t len;
-        } s;      /* string */
+        } s;      /* string: null-terminated string, string length */
         double n; /* number */
     } u;
     lept_type type;
 } lept_value;
-
-void lept_free(lept_value *v);
-#define lept_set_null(v) lept_free(v)
-
-#define lept_init(v)           \
-    do                         \
-    {                          \
-        (v)->type = LEPT_NULL; \
-    } while (0)
-
-#define PUTC(c, ch)                                         \
-    do                                                      \
-    {                                                       \
-        *(char *)lept_context_push(c, sizeof(char)) = (ch); \
-    } while (0)
 
 enum
 {
@@ -53,21 +37,24 @@ enum
     LEPT_PARSE_NUMBER_TOO_BIG,
     LEPT_PARSE_MISS_QUOTATION_MARK,
     LEPT_PARSE_INVALID_STRING_ESCAPE,
-    LEPT_PARSE_INVALID_STRING_CHAR
+    LEPT_PARSE_INVALID_STRING_CHAR,
+    LEPT_PARSE_INVALID_UNICODE_HEX,
+    LEPT_PARSE_INVALID_UNICODE_SURROGATE
 };
 
-typedef struct
-{
-    const char *json;
-    char *stack;
-    size_t size, top;
-} lept_context;
+#define lept_init(v)           \
+    do                         \
+    {                          \
+        (v)->type = LEPT_NULL; \
+    } while (0)
 
 int lept_parse(lept_value *v, const char *json);
 
+void lept_free(lept_value *v);
+
 lept_type lept_get_type(const lept_value *v);
 
-double lept_get_number(const lept_value *v);
+#define lept_set_null(v) lept_free(v)
 
 int lept_get_boolean(const lept_value *v);
 void lept_set_boolean(lept_value *v, int b);
